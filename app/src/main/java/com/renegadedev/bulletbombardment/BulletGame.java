@@ -66,7 +66,7 @@ public class BulletGame extends SurfaceView implements Runnable {
         mPaint = new Paint();
 
         // Initializing SoundPool
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.DONUT) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             AudioAttributes audioAttributes =
                     new AudioAttributes.Builder()
                             .setUsage(AudioAttributes.USAGE_MEDIA)
@@ -92,7 +92,8 @@ public class BulletGame extends SurfaceView implements Runnable {
 
             descriptor = assetManager.openFd("teleport.ogg");
             mTeleportID = mSP.load(descriptor, 0);
-        }catch (IOException) {
+
+        }catch (IOException e) {
             Log.e("error", "failed to load sound files");
         }
 
@@ -160,5 +161,29 @@ public class BulletGame extends SurfaceView implements Runnable {
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
         return true;
+    }
+
+    public void pause() {
+        mPlaying = false;
+        try {
+            mGameThread.join();
+        } catch (InterruptedException e) {
+            Log.e("Error:", "joining thread");
+        }
+    }
+
+    public void resume() {
+        mPlaying = true;
+        mGameThread = new Thread(this);
+        mGameThread.start();
+    }
+
+    private void printDebuggingText() {
+        int debugSize = 35;
+        int debutStart = 150;
+        mPaint.setTextSize(debugSize);
+
+        mCanvas.drawText("FPS: " + mFPS,
+                10, debutStart + debugSize, mPaint);
     }
 }
